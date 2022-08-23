@@ -19,6 +19,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
+        'hemispheres': hemispheres(browser),
         "last_modified": dt.datetime.now()
     }
     
@@ -82,6 +83,11 @@ def featured_image(browser):
 
 def mars_facts():
     # Mars facts
+    # *** The assignment asked us to use a try/except statement but mine was not working.
+    # *** I reached out to Learning Assistant and it was always just getting the except and returning None. 
+    # *** One option was to copy the expected results in the exception block. 
+    # *** The second option was to remove the try/except statement. 
+    # *** Removing the try/except statement was the only way I could get it to work.
     # try:
     df = pd.read_html('https://galaxyfacts-mars.com')[0]
 
@@ -93,9 +99,37 @@ def mars_facts():
         
     #Convert dataframe into HTML format, add bootstrap
 
-    return df.to_html(classes='table table-striped"')
+    return df.to_html(classes='table table-striped table-hover"')
 
-    
+def hemispheres(browser):
+    # 1. Use browser to visit the URL 
+    url = 'https://marshemispheres.com/'
+
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+
+    links = browser.find_by_css('a.product-item img')
+
+    for i in range(len(links)):
+        
+        hemisphere = {}
+        browser.find_by_css('a.product-item img')[i].click()
+        sample_elem = browser.links.find_by_text('Sample').first
+        hemisphere['img_url'] = sample_elem['href']
+        
+        hemisphere['title'] = browser.find_by_css('h2.title').text
+        
+        hemisphere_image_urls.append(hemisphere)
+        
+        browser.back()  
+
+    return hemisphere_image_urls
+
+
 if __name__ == "__main__":
     # If running as script, print scraped data
     print(scrape_all())
